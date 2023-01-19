@@ -37,7 +37,7 @@ const evaluateWindow = (window: number[], piece: number): number => {
     }
 
     if (pieceCount === 4) {
-      score += 100;
+      score += 1000000;
     } else if (pieceCount === 3 && emptyCount === 1) {
       score += 10;
     } else if (pieceCount === 2 && emptyCount === 2) {
@@ -45,7 +45,7 @@ const evaluateWindow = (window: number[], piece: number): number => {
     }
 
     if (opponentCount === 3 && emptyCount === 1) {
-      score -= Infinity;
+      score -= 10000;
     }
   });
   return score;
