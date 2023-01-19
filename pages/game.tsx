@@ -110,7 +110,7 @@ export default function Game() {
     setCurrentPlayer(changePlayer(currentPlayer, playerOne, playerTwo));
   };
 
-  const clickHandler = (e) => {
+  const clickHandler = (e: any) => {
     const hitPoint = e.pageX - e.currentTarget.offsetLeft;
     const hitBoxWidth = 592;
 

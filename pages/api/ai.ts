@@ -19,7 +19,6 @@ const insertCounterIntoColumn = (
       return copyOfBoard;
     }
   }
-  return null;
 };
 
 const evaluateWindow = (window: number[], piece: number): number => {
@@ -125,7 +124,7 @@ const pickBestMove = (board: number[][], piece: number) => {
     validLocations[Math.floor(Math.random() * validLocations.length)];
   validLocations.forEach((column) => {
     const boardWithMove = insertCounterIntoColumn(board, column, piece);
-    let score = scorePosition(boardWithMove, piece);
+    let score = scorePosition(boardWithMove as number[][], piece);
     if (score > bestScore) {
       bestScore = score;
       bestColumn = column;
