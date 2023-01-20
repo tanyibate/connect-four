@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import BlockUi from "react-block-ui";
 import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
 import Player from "../types/Player";
