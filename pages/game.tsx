@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import BlockUi from "react-block-ui";
 import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
 import Player from "../types/Player";
@@ -21,20 +22,18 @@ import {
   hitZoneRangesLarge,
   hitZoneRangesSmall,
   ROWS,
+  smallCounterRed,
+  smallCounterYellow,
+  largeCounterRed,
+  largeCounterYellow,
+  blackBoardSmall,
+  blackBoardLarge,
+  whiteBoardLarge,
+  whiteBoardSmall,
 } from "../utils/constants";
 
 export default function Game() {
   const windowWidth = useWindowSize().width;
-
-  const smallCounterRed = "./assets/images/counter-red-small.svg";
-  const smallCounterYellow = "./assets/images/counter-yellow-small.svg";
-  const largeCounterRed = "./assets/images/counter-red-large.svg";
-  const largeCounterYellow = "./assets/images/counter-yellow-large.svg";
-
-  const whiteBoardSmall = "./assets/images/board-layer-white-small.svg";
-  const whiteBoardLarge = "./assets/images/board-layer-white-large.svg";
-  const blackBoardSmall = "./assets/images/board-layer-black-small.svg";
-  const blackBoardLarge = "./assets/images/board-layer-black-large.svg";
 
   const initialBoard: number[][] = Array.from({ length: ROWS }, () =>
     Array.from({ length: COLUMNS }, () => EMPTY_CELL)
@@ -72,9 +71,9 @@ export default function Game() {
         getAIResponse(board, playerTwo.number).then((res) => {
           updateBoard(res.bestMove);
         });
-      }, 1000);
+      }, 500);
+      setBlockPlayerMove(false);
     }
-    setBlockPlayerMove(false);
   }, [board]);
 
   const updateBoard = (columnHit: number) => {
@@ -84,7 +83,6 @@ export default function Game() {
       currentPlayer.number
     );
     if (updatedBoard === null) return;
-    setBlockPlayerMove(true);
     const allWinConditions = [
       checkSouthWin,
       checkEastWin,
@@ -125,6 +123,8 @@ export default function Game() {
   };
 
   const clickHandler = (e: any) => {
+    if (blockPlayerMove || (currentPlayer === playerTwo && aiOpponentOn))
+      return;
     const hitPoint = e.pageX - e.currentTarget.offsetLeft;
     const isLarge = windowWidth >= 1024;
 
@@ -136,6 +136,7 @@ export default function Game() {
         hitPoint < hitZoneRanges[i].end
       ) {
         updateBoard(i);
+        setBlockPlayerMove(true);
       }
     }
   };
@@ -147,9 +148,7 @@ export default function Game() {
       </h1>
       <div
         className="h-full flex items-center cursor-pointer z-10"
-        onClick={(event) => {
-          if (!blockPlayerMove) clickHandler(event);
-        }}
+        onClick={clickHandler}
       >
         <div className="relative min-w-[335px] lg:min-w-[632px] max-w-[335px] lg:max-w-[632px]">
           <img
