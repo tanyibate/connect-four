@@ -5,14 +5,7 @@ import Player from "../types/Player";
 import {
   insertCounterIntoColumn,
   changePlayer,
-  checkSouthWin,
-  checkEastWin,
-  checkNorthWin,
-  checkWestWin,
-  checkNorthEastWin,
-  checkNorthWestWin,
-  checkSouthEastWin,
-  checkSouthWestWin,
+  checkWinningMove,
   clearBoard,
 } from "../utils/game";
 import {
@@ -82,42 +75,24 @@ export default function Game() {
       currentPlayer.number
     );
     if (updatedBoard === null) return;
-    const allWinConditions = [
-      checkSouthWin,
-      checkEastWin,
-      checkNorthWin,
-      checkWestWin,
-      checkNorthEastWin,
-      checkNorthWestWin,
-      checkSouthEastWin,
-      checkSouthWestWin,
-    ];
-    for (let i = 0; i < allWinConditions.length; i++) {
-      if (
-        allWinConditions[i](
-          updatedBoard.board,
-          updatedBoard.xPositionOfToken,
-          updatedBoard.yPositionOfToken,
-          currentPlayer.number
-        )
-      ) {
-        alert(`${currentPlayer.name} has won!`);
-        let copyOfPlayerOne = { ...playerOne };
-        let copyOfPlayerTwo = { ...playerTwo };
-        if (currentPlayer === playerOne) {
-          copyOfPlayerOne.score += 1;
-        } else {
-          copyOfPlayerTwo.score += 1;
-        }
-        setPlayerOne(copyOfPlayerOne);
-        setPlayerTwo(copyOfPlayerTwo);
-        setBoard(clearBoard(board));
-        setCurrentPlayer(copyOfPlayerOne);
-        return;
+
+    if (checkWinningMove(updatedBoard, currentPlayer.number)) {
+      alert(`${currentPlayer.name} has won!`);
+      let copyOfPlayerOne = { ...playerOne };
+      let copyOfPlayerTwo = { ...playerTwo };
+      if (currentPlayer === playerOne) {
+        copyOfPlayerOne.score += 1;
+      } else {
+        copyOfPlayerTwo.score += 1;
       }
+      setPlayerOne(copyOfPlayerOne);
+      setPlayerTwo(copyOfPlayerTwo);
+      setBoard(clearBoard(board));
+      setCurrentPlayer(copyOfPlayerOne);
+      return;
     }
 
-    setBoard(updatedBoard.board as number[][]);
+    setBoard(updatedBoard as number[][]);
     setCurrentPlayer(changePlayer(currentPlayer, playerOne, playerTwo));
   };
 

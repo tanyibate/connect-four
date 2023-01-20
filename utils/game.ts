@@ -13,11 +13,7 @@ export const insertCounterIntoColumn = (
   for (let i = numOfRows - 1; i >= 0; i--) {
     if (copyOfBoard[i][column] === 0) {
       copyOfBoard[i][column] = player;
-      return {
-        board: copyOfBoard,
-        xPositionOfToken: column,
-        yPositionOfToken: i,
-      };
+      return copyOfBoard;
     }
   }
   return null;
@@ -35,131 +31,60 @@ export const changePlayer = (
   }
 };
 
-export const checkEastWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  const numOfColumns = board[0].length;
-  for (let i = xPositionOfToken; i < xPositionOfToken + 4; i++) {
-    if (i > numOfColumns - 1) return false;
-    if (board[yPositionOfToken][i] !== player) return false;
+export const checkWinningMove = (board: number[][], piece: number) => {
+  // Check horizontal locations for win
+  for (let c = 0; c < board[0].length - 3; c++) {
+    for (let r = 0; r < board.length; r++) {
+      if (
+        board[r][c] === piece &&
+        board[r][c + 1] === piece &&
+        board[r][c + 2] === piece &&
+        board[r][c + 3] === piece
+      ) {
+        return true;
+      }
+    }
   }
-  console.log("east win");
-  return true;
-};
-
-export const checkWestWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  for (let i = xPositionOfToken; i > xPositionOfToken - 4; i--) {
-    if (i < 0) return false;
-    if (board[yPositionOfToken][i] !== player) return false;
+  // Check vertical locations for win
+  for (let c = 0; c < board[0].length; c++) {
+    for (let r = 0; r < board.length - 3; r++) {
+      if (
+        board[r][c] === piece &&
+        board[r + 1][c] === piece &&
+        board[r + 2][c] === piece &&
+        board[r + 3][c] === piece
+      ) {
+        return true;
+      }
+    }
   }
-  console.log("west win");
-  return true;
-};
-
-export const checkNorthWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  for (let i = yPositionOfToken; i > yPositionOfToken - 4; i--) {
-    if (i < 0) return false;
-    if (board[i][xPositionOfToken] !== player) return false;
+  // Check positively sloped diaganols
+  for (let c = 0; c < board[0].length - 3; c++) {
+    for (let r = 0; r < board.length - 3; r++) {
+      if (
+        board[r][c] === piece &&
+        board[r + 1][c + 1] === piece &&
+        board[r + 2][c + 2] === piece &&
+        board[r + 3][c + 3] === piece
+      ) {
+        return true;
+      }
+    }
   }
-  console.log("north win");
-  return true;
-};
-
-export const checkSouthWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  const numOfRows = board.length;
-  for (let i = yPositionOfToken; i < yPositionOfToken + 4; i++) {
-    if (i > numOfRows - 1) return false;
-    if (board[i][xPositionOfToken] !== player) return false;
+  // Check negatively sloped diaganols
+  for (let c = 0; c < board[0].length - 3; c++) {
+    for (let r = 3; r < board.length; r++) {
+      if (
+        board[r][c] === piece &&
+        board[r - 1][c + 1] === piece &&
+        board[r - 2][c + 2] === piece &&
+        board[r - 3][c + 3] === piece
+      ) {
+        return true;
+      }
+    }
   }
-  console.log("south win");
-  return true;
-};
-export const checkNorthEastWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  const numOfColumns = board[0].length;
-  for (let i = 1; i < 4; i++) {
-    if (xPositionOfToken + i > numOfColumns - 1 || yPositionOfToken - i < 0)
-      return false;
-    if (board[yPositionOfToken - i][xPositionOfToken + i] !== player)
-      return false;
-  }
-  console.log("north east win");
-  return true;
-};
-
-export const checkNorthWestWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  for (let i = 1; i < 4; i++) {
-    if (xPositionOfToken - i < 0 || yPositionOfToken - i < 0) return false;
-    if (board[yPositionOfToken - i][xPositionOfToken - i] !== player)
-      return false;
-  }
-  console.log("north west win");
-  return true;
-};
-
-export const checkSouthEastWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  const numOfColumns = board[0].length;
-  const numOfRows = board.length;
-  for (let i = 1; i < 4; i++) {
-    if (
-      xPositionOfToken + i > numOfColumns - 1 ||
-      yPositionOfToken + i > numOfRows - 1
-    )
-      return false;
-    if (board[yPositionOfToken + i][xPositionOfToken + i] !== player)
-      return false;
-  }
-  console.log("south east win");
-  return true;
-};
-
-export const checkSouthWestWin = (
-  board: number[][],
-  xPositionOfToken: number,
-  yPositionOfToken: number,
-  player: number
-) => {
-  const numOfRows = board.length;
-  for (let i = 1; i < 4; i++) {
-    if (xPositionOfToken - i < 0 || yPositionOfToken + i > numOfRows - 1)
-      return false;
-    if (board[yPositionOfToken + i][xPositionOfToken - i] !== player)
-      return false;
-  }
-  console.log("south west win");
-  return true;
+  return false;
 };
 
 export const clearBoard = (board: number[][]) => {
