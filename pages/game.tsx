@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
 import Player from "../types/Player";
-import { turn2DArrayIntoString, transposeArray } from "../utils/misc";
 import {
   insertCounterIntoColumn,
   changePlayer,
@@ -15,14 +15,29 @@ import {
   checkSouthWestWin,
   clearBoard,
 } from "../utils/game";
+import {
+  COLUMNS,
+  EMPTY_CELL,
+  hitZoneRangesLarge,
+  hitZoneRangesSmall,
+  ROWS,
+} from "../utils/constants";
 
 export default function Game() {
-  const ROWS = 6;
-  const COLUMNS = 7;
-  const val = 0;
+  const windowWidth = useWindowSize().width;
+
+  const smallCounterRed = "./assets/images/counter-red-small.svg";
+  const smallCounterYellow = "./assets/images/counter-yellow-small.svg";
+  const largeCounterRed = "./assets/images/counter-red-large.svg";
+  const largeCounterYellow = "./assets/images/counter-yellow-large.svg";
+
+  const whiteBoardSmall = "./assets/images/board-layer-white-small.svg";
+  const whiteBoardLarge = "./assets/images/board-layer-white-large.svg";
+  const blackBoardSmall = "./assets/images/board-layer-black-small.svg";
+  const blackBoardLarge = "./assets/images/board-layer-black-large.svg";
 
   const initialBoard: number[][] = Array.from({ length: ROWS }, () =>
-    Array.from({ length: COLUMNS }, () => val)
+    Array.from({ length: COLUMNS }, () => EMPTY_CELL)
   );
 
   const [board, setBoard] = useState(initialBoard);
@@ -53,13 +68,11 @@ export default function Game() {
       return response.data;
     };
     if (aiOpponentOn && currentPlayer === playerTwo) {
-      setBlockPlayerMove(true);
       setTimeout(() => {
         getAIResponse(board, playerTwo.number).then((res) => {
-          console.log(res.bestMove);
           updateBoard(res.bestMove);
         });
-      }, 100);
+      }, 1000);
     }
     setBlockPlayerMove(false);
   }, [board]);
@@ -71,6 +84,7 @@ export default function Game() {
       currentPlayer.number
     );
     if (updatedBoard === null) return;
+    setBlockPlayerMove(true);
     const allWinConditions = [
       checkSouthWin,
       checkEastWin,
@@ -112,43 +126,14 @@ export default function Game() {
 
   const clickHandler = (e: any) => {
     const hitPoint = e.pageX - e.currentTarget.offsetLeft;
-    const hitBoxWidth = 592;
+    const isLarge = windowWidth >= 1024;
 
-    const hitZoneRangesLarge = [
-      {
-        start: 20,
-        end: 84,
-      },
-      {
-        start: 108,
-        end: 172,
-      },
-      {
-        start: 196,
-        end: 260,
-      },
-      {
-        start: 284,
-        end: 348,
-      },
-      {
-        start: 372,
-        end: 436,
-      },
-      {
-        start: 460,
-        end: 524,
-      },
-      {
-        start: 548,
-        end: 612,
-      },
-    ];
+    const hitZoneRanges = isLarge ? hitZoneRangesLarge : hitZoneRangesSmall;
 
-    for (let i = 0; i < hitZoneRangesLarge.length; i++) {
+    for (let i = 0; i < hitZoneRanges.length; i++) {
       if (
-        hitPoint > hitZoneRangesLarge[i].start &&
-        hitPoint < hitZoneRangesLarge[i].end
+        hitPoint > hitZoneRanges[i].start &&
+        hitPoint < hitZoneRanges[i].end
       ) {
         updateBoard(i);
       }
@@ -157,29 +142,40 @@ export default function Game() {
 
   return (
     <div className="flex justify-center items-center w-screen h-screen">
-      <h1 className="text-9xl px-12 text-white">{playerOne.score}</h1>
+      <h1 className="text-9xl px-12 text-white hidden lg:block">
+        {playerOne.score}
+      </h1>
       <div
         className="h-full flex items-center cursor-pointer z-10"
         onClick={(event) => {
           if (!blockPlayerMove) clickHandler(event);
         }}
       >
-        <div className="relative min-w-[632px]">
+        <div className="relative min-w-[335px] lg:min-w-[632px] max-w-[335px] lg:max-w-[632px]">
           <img
-            src="./assets/images/board-layer-black-large.svg"
+            src={blackBoardSmall}
+            srcSet={`${blackBoardSmall} 335w, ${blackBoardLarge} 632w`}
+            sizes="(max-width: 1023px) 335px, 632px"
             alt=""
             className="z-[-5] absolute top-0 left-0"
           />
-          <div className="absolute w-[592px] min-w-[592px] h-[504px] top-[20px] left-[20px]  grid grid-cols-7 grid-rows-6 gap-6 z-[-1]">
+          <div className="absolute w-[314px] lg:w-[592px] min-w-[314px] lg:min-w-[592px] h-[268px] lg:h-[504px] top-[10px] left-[10px] lg:top-[20px] lg:left-[20px]  grid grid-cols-7 grid-rows-6 gap-3 lg:gap-6 z-[-1]">
             {board.map((column, xIndex) => {
               return column.map((token, yIndex) => {
                 return (
                   <div key={`${xIndex + yIndex}`}>
                     {token === 1 ? (
-                      <img src="./assets/images/counter-red-large.svg" alt="" />
+                      <img
+                        src={smallCounterRed}
+                        srcSet={`${smallCounterRed} 34w, ${largeCounterRed} 64w`}
+                        sizes="(max-width: 1023px) 34px, 64px"
+                        alt=""
+                      />
                     ) : token === 2 ? (
                       <img
-                        src="./assets/images/counter-yellow-large.svg"
+                        src={smallCounterYellow}
+                        srcSet={`${smallCounterYellow} 34w, ${largeCounterYellow} 64w`}
+                        sizes="(max-width: 1023px) 34px, 64px"
                         alt=""
                       />
                     ) : (
@@ -191,13 +187,17 @@ export default function Game() {
             })}
           </div>
           <img
-            src="./assets/images/board-layer-white-large.svg"
+            src={whiteBoardSmall}
+            srcSet={`${whiteBoardSmall} 335w, ${whiteBoardLarge} 632w`}
+            sizes="(max-width: 1024px) 632px"
             alt=""
             className="z-20"
           />
         </div>
       </div>
-      <h1 className="text-9xl px-12 text-white">{playerTwo.score}</h1>
+      <h1 className="text-9xl px-12 text-white hidden lg:block">
+        {playerTwo.score}
+      </h1>
     </div>
   );
 }

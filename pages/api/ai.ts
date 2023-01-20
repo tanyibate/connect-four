@@ -37,15 +37,15 @@ const evaluateWindow = (window: number[], piece: number): number => {
     }
 
     if (pieceCount === 4) {
-      score += 1000000;
+      score += Infinity;
     } else if (pieceCount === 3 && emptyCount === 1) {
-      score += 10;
+      score += 20;
     } else if (pieceCount === 2 && emptyCount === 2) {
-      score += 0;
+      score += 5;
     }
 
     if (opponentCount === 3 && emptyCount === 1) {
-      score -= 10000;
+      score -= 80;
     }
   });
   return score;
@@ -55,7 +55,6 @@ const scorePosition = (board: number[][], piece: number) => {
   const numOfRows = board.length;
   const numOfColumns = board[0].length;
   let score = 0;
-  const randomConnect4Column = Math.floor(Math.random() * 7);
 
   /* score horizontal */
   for (let i = 0; i < numOfRows; i++) {
@@ -123,8 +122,10 @@ const pickBestMove = (board: number[][], piece: number) => {
   let bestColumn =
     validLocations[Math.floor(Math.random() * validLocations.length)];
   validLocations.forEach((column) => {
+    let score;
     const boardWithMove = insertCounterIntoColumn(board, column, piece);
-    let score = scorePosition(boardWithMove as number[][], piece);
+    score = scorePosition(boardWithMove as number[][], piece);
+    if (column === 4) score += 6; // center column is the best
     if (score > bestScore) {
       bestScore = score;
       bestColumn = column;
