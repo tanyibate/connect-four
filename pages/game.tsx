@@ -132,7 +132,7 @@ export default function Game() {
             {board.map((column, xIndex) => {
               return column.map((token, yIndex) => {
                 return (
-                  <div key={`${xIndex + yIndex}`}>
+                  <div key={`${xIndex + yIndex}`} className="relative">
                     {token === 1 ? (
                       <img
                         src={smallCounterRed}
@@ -150,6 +150,9 @@ export default function Game() {
                     ) : (
                       ""
                     )}
+                    {
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-8 border-white border-solid rounded-full h-1/2 w-1/2"></div>
+                    }
                   </div>
                 );
               });

@@ -5,7 +5,6 @@ export const insertCounterIntoColumn = (
   column: number,
   player: number
 ) => {
-  console.log("clicked");
   const numOfRows = board.length;
   const copyOfBoard = board.map(function (arr) {
     return arr.slice();
