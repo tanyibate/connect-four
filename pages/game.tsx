@@ -71,9 +71,18 @@ export default function Game() {
       currentPlayer.number
     );
     if (updatedBoard === null) return;
+    const winningMove = checkWinningMove(
+      updatedBoard,
+      currentPlayer.number,
+      true
+    );
 
-    if (checkWinningMove(updatedBoard, currentPlayer.number)) {
+    if (typeof winningMove != "boolean") {
       alert(`${currentPlayer.name} has won!`);
+      winningMove.forEach((cell) => {
+        updatedBoard[cell[0]][cell[1]] = currentPlayer.number + 2;
+      });
+      console.log(updatedBoard);
       let copyOfPlayerOne = { ...playerOne };
       let copyOfPlayerTwo = { ...playerTwo };
       if (currentPlayer === playerOne) {
@@ -83,7 +92,8 @@ export default function Game() {
       }
       setPlayerOne(copyOfPlayerOne);
       setPlayerTwo(copyOfPlayerTwo);
-      setBoard(clearBoard(board));
+      setBoard(updatedBoard);
+      //setBoard(clearBoard(board));
       setCurrentPlayer(copyOfPlayerOne);
       return;
     }
@@ -133,14 +143,14 @@ export default function Game() {
               return column.map((token, yIndex) => {
                 return (
                   <div key={`${xIndex + yIndex}`} className="relative">
-                    {token === 1 ? (
+                    {token === 1 || token === 3 ? (
                       <img
                         src={smallCounterRed}
                         srcSet={`${smallCounterRed} 34w, ${largeCounterRed} 64w`}
                         sizes="(max-width: 1023px) 34px, 64px"
                         alt=""
                       />
-                    ) : token === 2 ? (
+                    ) : token === 2 || token === 4 ? (
                       <img
                         src={smallCounterYellow}
                         srcSet={`${smallCounterYellow} 34w, ${largeCounterYellow} 64w`}
@@ -150,9 +160,9 @@ export default function Game() {
                     ) : (
                       ""
                     )}
-                    {
+                    {(token === 3 || token === 4) && (
                       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-8 border-white border-solid rounded-full h-1/2 w-1/2"></div>
-                    }
+                    )}
                   </div>
                 );
               });
