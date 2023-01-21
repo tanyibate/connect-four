@@ -241,5 +241,5 @@ export default function handler(
 
   res
     .status(200)
-    .json({ bestMove: miniMax(board, 6, true, player, 3 - player).column });
+    .json({ bestMove: miniMax(board, 5, true, player, 3 - player).column });
 }
