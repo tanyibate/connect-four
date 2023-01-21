@@ -23,7 +23,6 @@ const insertCounterIntoColumn = (
 };
 
 const evaluateWindow = (window: number[], piece: number): number => {
-  const opponentPiece = piece === PLAYER_PIECE ? AI_PIECE : PLAYER_PIECE;
   let score = 0;
   let pieceCount = 0;
   let emptyCount = 0;
@@ -40,13 +39,13 @@ const evaluateWindow = (window: number[], piece: number): number => {
     if (pieceCount === 4) {
       score += 100;
     } else if (pieceCount === 3 && emptyCount === 1) {
-      score += 25;
+      score += 5;
     } else if (pieceCount === 2 && emptyCount === 2) {
-      score += 10;
+      score += 2;
     }
 
     if (opponentCount === 3 && emptyCount === 1) {
-      score -= 75;
+      score -= 4;
     }
   });
   return score;
@@ -56,6 +55,14 @@ const scorePosition = (board: number[][], piece: number) => {
   const numOfRows = board.length;
   const numOfColumns = board[0].length;
   let score = 0;
+
+  const centerCount = board.reduce((acc, row) => {
+    if (row[3] === piece) {
+      return acc + 1;
+    }
+  }, 0);
+
+  score += centerCount * 3;
 
   /* score horizontal */
   for (let i = 0; i < numOfRows; i++) {
@@ -120,8 +127,8 @@ const getValidLocations = (board: number[][]): number[] => {
 const isTerminalNode = (board: number[][]): boolean => {
   return (
     getValidLocations(board).length === 0 ||
-    checkWinningMove(board, AI_PIECE) ||
-    checkWinningMove(board, PLAYER_PIECE)
+    (checkWinningMove(board, AI_PIECE) as boolean) ||
+    (checkWinningMove(board, PLAYER_PIECE) as boolean)
   );
 };
 
@@ -136,10 +143,10 @@ const miniMax = (
   const isTerminal = isTerminalNode(board);
   if (depth === 0 || isTerminal) {
     if (isTerminal) {
-      if (checkWinningMove(board, piece)) {
+      if (checkWinningMove(board, piece) as boolean) {
         return { score: 100000000000000, column: null };
       } else if (checkWinningMove(board, opponentPiece)) {
-        return { score: -1000000000000, column: null };
+        return { score: -100000000000, column: null };
       } else {
         return { score: 0, column: null }; // game over but no winner
       }
@@ -234,5 +241,5 @@ export default function handler(
 
   res
     .status(200)
-    .json({ bestMove: miniMax(board, 5, true, player, 3 - player).column });
+    .json({ bestMove: miniMax(board, 6, true, player, 3 - player).column });
 }

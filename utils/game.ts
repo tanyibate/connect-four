@@ -31,7 +31,11 @@ export const changePlayer = (
   }
 };
 
-export const checkWinningMove = (board: number[][], piece: number) => {
+export const checkWinningMove = (
+  board: number[][],
+  piece: number,
+  returnWinningMove: boolean = false
+): boolean | number[][] => {
   // Check horizontal locations for win
   for (let c = 0; c < board[0].length - 3; c++) {
     for (let r = 0; r < board.length; r++) {
@@ -41,6 +45,14 @@ export const checkWinningMove = (board: number[][], piece: number) => {
         board[r][c + 2] === piece &&
         board[r][c + 3] === piece
       ) {
+        if (returnWinningMove) {
+          return [
+            [r, c],
+            [r, c + 1],
+            [r, c + 2],
+            [r, c + 3],
+          ];
+        }
         return true;
       }
     }
@@ -54,6 +66,14 @@ export const checkWinningMove = (board: number[][], piece: number) => {
         board[r + 2][c] === piece &&
         board[r + 3][c] === piece
       ) {
+        if (returnWinningMove) {
+          return [
+            [r, c],
+            [r + 1, c],
+            [r + 2, c],
+            [r + 3, c],
+          ];
+        }
         return true;
       }
     }
@@ -67,6 +87,14 @@ export const checkWinningMove = (board: number[][], piece: number) => {
         board[r + 2][c + 2] === piece &&
         board[r + 3][c + 3] === piece
       ) {
+        if (returnWinningMove) {
+          return [
+            [r, c],
+            [r + 1, c + 1],
+            [r + 2, c + 2],
+            [r + 3, c + 3],
+          ];
+        }
         return true;
       }
     }
@@ -80,6 +108,14 @@ export const checkWinningMove = (board: number[][], piece: number) => {
         board[r - 2][c + 2] === piece &&
         board[r - 3][c + 3] === piece
       ) {
+        if (returnWinningMove) {
+          return [
+            [r, c],
+            [r - 1, c + 1],
+            [r - 2, c + 2],
+            [r - 3, c + 3],
+          ];
+        }
         return true;
       }
     }
