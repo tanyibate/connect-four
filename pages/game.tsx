@@ -161,7 +161,7 @@ export default function Game() {
                       ""
                     )}
                     {(token === 3 || token === 4) && (
-                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-8 border-white border-solid rounded-full h-1/2 w-1/2"></div>
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 lg:border-8 border-white border-solid rounded-full h-1/2 w-1/2"></div>
                     )}
                   </div>
                 );

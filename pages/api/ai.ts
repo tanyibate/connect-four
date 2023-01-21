@@ -150,7 +150,7 @@ const miniMax = (
     // maximizing player
     let value = -Infinity;
     let column = Math.floor(Math.random() * validLocations.length);
-    validLocations.forEach((col) => {
+    for (let col of validLocations) {
       let copyOfBoard = board.map(function (arr) {
         return arr.slice();
       });
@@ -171,13 +171,14 @@ const miniMax = (
         value = newScore;
         column = col;
       }
-    });
+    }
+
     return { score: value, column };
   } else {
     // minimizing player
     let value = Infinity;
     let column = Math.floor(Math.random() * validLocations.length);
-    validLocations.forEach((col) => {
+    for (let col of validLocations) {
       let copyOfBoard = board.map(function (arr) {
         return arr.slice();
       });
@@ -197,7 +198,7 @@ const miniMax = (
         value = newScore;
         column = col;
       }
-    });
+    }
     return { score: value, column };
   }
 };
