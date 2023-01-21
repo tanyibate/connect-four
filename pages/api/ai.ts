@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { checkWinningMove } from "../../utils/game";
 
 const PLAYER_PIECE = 1;
 const AI_PIECE = 2;
@@ -37,15 +38,15 @@ const evaluateWindow = (window: number[], piece: number): number => {
     }
 
     if (pieceCount === 4) {
-      score += Infinity;
+      score += 100;
     } else if (pieceCount === 3 && emptyCount === 1) {
-      score += 20;
+      score += 25;
     } else if (pieceCount === 2 && emptyCount === 2) {
-      score += 5;
+      score += 10;
     }
 
     if (opponentCount === 3 && emptyCount === 1) {
-      score -= 80;
+      score -= 75;
     }
   });
   return score;
@@ -116,6 +117,92 @@ const getValidLocations = (board: number[][]): number[] => {
   return validLocations;
 };
 
+const isTerminalNode = (board: number[][]): boolean => {
+  return (
+    getValidLocations(board).length === 0 ||
+    checkWinningMove(board, AI_PIECE) ||
+    checkWinningMove(board, PLAYER_PIECE)
+  );
+};
+
+const miniMax = (
+  board: number[][],
+  depth: number,
+  maximizingPlayer: boolean,
+  piece: number,
+  opponentPiece: number
+) => {
+  const validLocations = getValidLocations(board);
+  const isTerminal = isTerminalNode(board);
+  if (depth === 0 || isTerminal) {
+    if (isTerminal) {
+      if (checkWinningMove(board, piece)) {
+        return { score: 100000000000000, column: null };
+      } else if (checkWinningMove(board, opponentPiece)) {
+        return { score: -1000000000000, column: null };
+      } else {
+        return { score: 0, column: null }; // game over but no winner
+      }
+    } else {
+      return { score: scorePosition(board, piece), column: null };
+    }
+  }
+  if (maximizingPlayer) {
+    // maximizing player
+    let value = -Infinity;
+    let column = Math.floor(Math.random() * validLocations.length);
+    validLocations.forEach((col) => {
+      let copyOfBoard = board.map(function (arr) {
+        return arr.slice();
+      });
+      const boardWithMove = insertCounterIntoColumn(
+        copyOfBoard,
+        col,
+        piece
+      ) as number[][];
+      let newScore = miniMax(
+        boardWithMove,
+        depth - 1,
+        false,
+        piece,
+        opponentPiece
+      ).score;
+
+      if (newScore > value) {
+        value = newScore;
+        column = col;
+      }
+    });
+    return { score: value, column };
+  } else {
+    // minimizing player
+    let value = Infinity;
+    let column = Math.floor(Math.random() * validLocations.length);
+    validLocations.forEach((col) => {
+      let copyOfBoard = board.map(function (arr) {
+        return arr.slice();
+      });
+      const boardWithMove = insertCounterIntoColumn(
+        copyOfBoard,
+        col,
+        opponentPiece
+      ) as number[][];
+      let newScore = miniMax(
+        boardWithMove,
+        depth - 1,
+        true,
+        piece,
+        opponentPiece
+      ).score;
+      if (newScore < value) {
+        value = newScore;
+        column = col;
+      }
+    });
+    return { score: value, column };
+  }
+};
+
 const pickBestMove = (board: number[][], piece: number) => {
   const validLocations = getValidLocations(board);
   let bestScore = -10000;
@@ -145,5 +232,7 @@ export default function handler(
   const board = req.body.board;
   const player = req.body.player;
 
-  res.status(200).json({ bestMove: pickBestMove(board, player) });
+  res
+    .status(200)
+    .json({ bestMove: miniMax(board, 5, true, player, 3 - player).column });
 }

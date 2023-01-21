@@ -48,14 +48,10 @@ export default function Game() {
 
   useEffect(() => {
     const getAIResponse = async (board: number[][], player: number) => {
-      const response = await axios.post(
-        "/api/ai",
-
-        {
-          board,
-          player,
-        }
-      );
+      const response = await axios.post("/api/ai", {
+        board,
+        player,
+      });
       return response.data;
     };
     if (aiOpponentOn && currentPlayer === playerTwo) {
