@@ -56,14 +56,6 @@ const scorePosition = (board: number[][], piece: number) => {
   const numOfColumns = board[0].length;
   let score = 0;
 
-  const centerCount = board.reduce((acc, row) => {
-    if (row[3] === piece) {
-      return acc + 1;
-    }
-  }, 0);
-
-  score += centerCount * 3;
-
   /* score horizontal */
   for (let i = 0; i < numOfRows; i++) {
     for (let j = 0; j < numOfColumns - 3; j++) {
@@ -241,5 +233,5 @@ export default function handler(
 
   res
     .status(200)
-    .json({ bestMove: miniMax(board, 5, true, player, 3 - player).column });
+    .json({ bestMove: miniMax(board, 6, true, player, 3 - player).column });
 }
