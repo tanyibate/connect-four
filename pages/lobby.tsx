@@ -3,7 +3,7 @@ import io from "socket.io-client";
 
 let socket;
 
-export default function lobby() {
+export default function Lobby() {
   useEffect(() => {
     socketInitializer();
   }, []);
