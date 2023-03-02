@@ -1,10 +1,8 @@
 import { createContext, useState } from "react";
 
-import React from "react";
+export const Connect4GameContext = createContext(null);
 
-export const GameContext = createContext();
-
-export default function gameContext({ children }) {
+export default function GameContext({ children }) {
   const [userOpponent, setUserOpponent] = useState(false);
   const [botOpponent, setBotOpponent] = useState(false);
   const [remoteOpponent, setRemoteOpponent] = useState(false);
@@ -33,7 +31,7 @@ export default function gameContext({ children }) {
     }
   };
   return (
-    <GameContext.Provider
+    <Connect4GameContext.Provider
       value={{
         userOpponent,
         botOpponent,
@@ -42,6 +40,6 @@ export default function gameContext({ children }) {
       }}
     >
       {children}
-    </GameContext.Provider>
+    </Connect4GameContext.Provider>
   );
 }

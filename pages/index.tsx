@@ -1,4 +1,4 @@
-import { GameContext } from "../context/GameContext";
+import { Connect4GameContext } from "../context/gameContext";
 import { useContext } from "react";
 import { useRouter } from "next/router";
 
@@ -8,7 +8,7 @@ export default function Home() {
     setOpponentType(opponentType);
     router.push("/game");
   };
-  const { setOpponentType } = useContext(GameContext);
+  const { setOpponentType } = useContext(Connect4GameContext);
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-y-4">
       <button

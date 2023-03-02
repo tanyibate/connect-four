@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { GameContext } from "../context/GameContext";
-import io from "socket.io-client";
+import { Connect4GameContext } from "../context/gameContext";
+//import io from "socket.io-client";
 
 import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
-import Player from "../types/Player";
+//import Player from "../types/Player";
 import {
   insertCounterIntoColumn,
   changePlayer,
@@ -36,7 +36,7 @@ export default function Game() {
     Array.from({ length: COLUMNS }, () => EMPTY_CELL)
   );
   const { opponentType, remoteOpponent, botOpponent, userOpponent } =
-    useContext(GameContext);
+    useContext(Connect4GameContext);
   const [input, setInput] = useState("");
   const [board, setBoard] = useState(initialBoard);
   const [blockPlayerMove, setBlockPlayerMove] = useState(false);
