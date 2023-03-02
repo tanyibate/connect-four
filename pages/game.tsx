@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { GameContext } from "../context/GameContext";
+import io from "socket.io-client";
+
 import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
 import Player from "../types/Player";
@@ -24,15 +27,18 @@ import {
   whiteBoardSmall,
 } from "../utils/constants";
 
+//let socket;
+
 export default function Game() {
   const windowWidth = useWindowSize().width;
 
   const initialBoard: number[][] = Array.from({ length: ROWS }, () =>
     Array.from({ length: COLUMNS }, () => EMPTY_CELL)
   );
-
+  const { opponentType, remoteOpponent, botOpponent, userOpponent } =
+    useContext(GameContext);
+  const [input, setInput] = useState("");
   const [board, setBoard] = useState(initialBoard);
-  const [aiOpponentOn, setAiOpponentOn] = useState(true);
   const [blockPlayerMove, setBlockPlayerMove] = useState(false);
   const [playerOne, setPlayerOne] = useState({
     name: "Player One",
@@ -45,6 +51,30 @@ export default function Game() {
     number: 2,
   });
   const [currentPlayer, setCurrentPlayer] = useState(playerOne);
+  const [userPlayer, setUserPlayer] = useState(playerOne);
+  const [gameActive, setGameActive] = useState(true);
+
+  /*useEffect(() => {
+    socketInitializer();
+  }, []);*/
+
+  /*const onChangeHandler = (e) => {
+    setInput(e.target.value);
+    socket.emit("input-change", e.target.value);
+  };*/
+
+  /*const socketInitializer = async () => {
+    await fetch("/api/multiplayer");
+    socket = io();
+
+    socket.on("connect", () => {
+      console.log("connected");
+    });
+
+    socket.on("update-input", (msg) => {
+      setInput(msg);
+    });
+  };*/
 
   useEffect(() => {
     const getAIResponse = async (board: number[][], player: number) => {
@@ -54,7 +84,7 @@ export default function Game() {
       });
       return response.data;
     };
-    if (aiOpponentOn && currentPlayer === playerTwo) {
+    if (botOpponent && currentPlayer === playerTwo) {
       setTimeout(() => {
         getAIResponse(board, playerTwo.number).then((res) => {
           updateBoard(res.bestMove);
@@ -82,7 +112,6 @@ export default function Game() {
       winningMove.forEach((cell) => {
         updatedBoard[cell[0]][cell[1]] = currentPlayer.number + 2;
       });
-      console.log(updatedBoard);
       let copyOfPlayerOne = { ...playerOne };
       let copyOfPlayerTwo = { ...playerTwo };
       if (currentPlayer === playerOne) {
@@ -95,6 +124,7 @@ export default function Game() {
       setBoard(updatedBoard);
       //setBoard(clearBoard(board));
       setCurrentPlayer(copyOfPlayerOne);
+      setGameActive(false);
       return;
     }
 
@@ -103,7 +133,14 @@ export default function Game() {
   };
 
   const clickHandler = (e: any) => {
-    if (blockPlayerMove || (currentPlayer === playerTwo && aiOpponentOn))
+    //socket.emit("hello-world", { input: "hello" });
+
+    if (
+      blockPlayerMove ||
+      (currentPlayer === playerTwo && botOpponent) ||
+      (currentPlayer !== userPlayer && remoteOpponent) ||
+      !gameActive
+    )
       return;
     const hitPoint = e.pageX - e.currentTarget.offsetLeft;
     const isLarge = windowWidth >= 1024;
@@ -116,9 +153,14 @@ export default function Game() {
         hitPoint < hitZoneRanges[i].end
       ) {
         updateBoard(i);
-        setBlockPlayerMove(true);
+        if (remoteOpponent || botOpponent) setBlockPlayerMove(true);
       }
     }
+  };
+
+  const resetGame = () => {
+    setBoard(clearBoard(board));
+    setGameActive(true);
   };
 
   return (
@@ -127,7 +169,7 @@ export default function Game() {
         {playerOne.score}
       </h1>
       <div
-        className="h-full flex items-center cursor-pointer z-10"
+        className="h-full flex items-center justify-center gap-y-4 flex-col  cursor-pointer z-10"
         onClick={clickHandler}
       >
         <div className="relative min-w-[335px] lg:min-w-[632px] max-w-[335px] lg:max-w-[632px]">
@@ -176,10 +218,29 @@ export default function Game() {
             className="z-20"
           />
         </div>
+        <div className="flex justify-between lg:hidden w-full px-6">
+          <h1 className="text-6xl text-white">{playerOne.score}</h1>
+          <h1 className="text-6xl text-white">{playerTwo.score}</h1>
+        </div>
+        {!gameActive && (
+          <div
+            className="text-6xl text-white cursor-pointer"
+            onClick={resetGame}
+          >
+            Play again
+          </div>
+        )}
       </div>
       <h1 className="text-9xl px-12 text-white hidden lg:block">
         {playerTwo.score}
       </h1>
+
+      {/*<input
+        placeholder="Type something"
+        value={input}
+        onChange={onChangeHandler}
+        className="border-2 border-black fixed top-0 left-0"
+        />*/}
     </div>
   );
 }

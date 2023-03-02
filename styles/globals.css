@@ -5,6 +5,12 @@
 html,
 body {
   max-width: 100vw;
+  height: 100vh;
   overflow-x: hidden;
   background-color: blueviolet;
+}
+
+#__next {
+  height: 100%;
+  width: 100%;
 }
