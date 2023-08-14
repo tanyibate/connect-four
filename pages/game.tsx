@@ -53,6 +53,7 @@ export default function Game() {
   const [currentPlayer, setCurrentPlayer] = useState(playerOne);
   const [userPlayer, setUserPlayer] = useState(playerOne);
   const [gameActive, setGameActive] = useState(true);
+  const [numberOfSecondsRemaining, setNumberOfSecondsRemaining] = useState(15);
 
   /*useEffect(() => {
     socketInitializer();
@@ -94,6 +95,33 @@ export default function Game() {
     }
   }, [board]);
 
+  // Use effect to automatically change a player after 15 seconds if the game is still active
+  useEffect(() => {
+    if (gameActive) setNumberOfSecondsRemaining(15);
+    const maximumTime = setInterval(() => {
+      if (gameActive) {
+        setCurrentPlayer(changePlayer(currentPlayer, playerOne, playerTwo));
+      }
+    }, 15000);
+
+    return () => {
+      console.log("clearing");
+      clearTimeout(maximumTime);
+    };
+  }, [currentPlayer, gameActive]);
+
+  // Use effect to count down the number of seconds remaining
+  useEffect(() => {
+    const countDown = setInterval(() => {
+      if (gameActive && numberOfSecondsRemaining > 0) {
+        setNumberOfSecondsRemaining((prev) => prev - 1);
+      }
+    }, 1000);
+    return () => {
+      clearTimeout(countDown);
+    };
+  }, [numberOfSecondsRemaining]);
+
   const updateBoard = (columnHit: number) => {
     const updatedBoard = insertCounterIntoColumn(
       board,
@@ -108,7 +136,6 @@ export default function Game() {
     );
 
     if (typeof winningMove != "boolean") {
-      alert(`${currentPlayer.name} has won!`);
       winningMove.forEach((cell) => {
         updatedBoard[cell[0]][cell[1]] = currentPlayer.number + 2;
       });
@@ -161,6 +188,7 @@ export default function Game() {
   const resetGame = () => {
     setBoard(clearBoard(board));
     setGameActive(true);
+    setBlockPlayerMove(false);
   };
 
   return (
@@ -169,10 +197,10 @@ export default function Game() {
         {playerOne.score}
       </h1>
       <div
-        className="h-full flex items-center justify-center gap-y-4 flex-col  cursor-pointer z-10"
+        className="h-full flex items-center justify-center gap-y-4 flex-col cursor-pointer z-10"
         onClick={clickHandler}
       >
-        <div className="relative min-w-[335px] lg:min-w-[632px] max-w-[335px] lg:max-w-[632px]">
+        <div className="relative min-w-[335px] lg:min-w-[632px] max-w-[335px] lg:max-w-[632px] z-20">
           <img
             src={blackBoardSmall}
             srcSet={`${blackBoardSmall} 335w, ${blackBoardLarge} 632w`}
@@ -217,19 +245,45 @@ export default function Game() {
             alt=""
             className="z-20"
           />
+          {gameActive && (
+            <div className="absolute left-1/2 -translate-x-1/2 top-[92.5%]">
+              <div className="absolute top-0 left-0 py-10 px-6 text-black w-full h-full text-center space-y-2">
+                <div className="text-base">{currentPlayer.name}'s turn</div>
+                <div className="text-4xl">{numberOfSecondsRemaining}s</div>
+              </div>
+              {currentPlayer.name === "Player One" ? (
+                <img src="/assets/images/turn-background-red.svg" alt="" />
+              ) : (
+                <img src="/assets/images/turn-background-yellow.svg" alt="" />
+              )}
+            </div>
+          )}
+          {!gameActive && (
+            <div className="h-[160px] w-[285px absolute left-1/2 -translate-x-1/2 top-[92.5%]">
+              <img
+                src="/assets/images/winner-background.png"
+                alt=""
+                className="w-full h-full"
+              />
+              <div className="absolute top-0 left-0 h-full w-full flex flex-col justify-evenly items-center py-4">
+                <div className="text-base">{currentPlayer.name}</div>
+                <div className="text-4xl">WINS</div>
+                <div
+                  className="text-white text-base rounded-xl bg-dark-purple px-4 py-1 cursor-pointer"
+                  onClick={resetGame}
+                >
+                  PLAY AGAIN
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex justify-between lg:hidden w-full px-6">
           <h1 className="text-6xl text-white">{playerOne.score}</h1>
           <h1 className="text-6xl text-white">{playerTwo.score}</h1>
         </div>
-        {!gameActive && (
-          <div
-            className="text-6xl text-white cursor-pointer"
-            onClick={resetGame}
-          >
-            Play again
-          </div>
-        )}
+
+        <div className="absolute w-full h-1/2 left-0 bg-dark-purple rounded-3xl top-[62%] z-10"></div>
       </div>
       <h1 className="text-9xl px-12 text-white hidden lg:block">
         {playerTwo.score}

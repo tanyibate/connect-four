@@ -12,7 +12,7 @@ export default function Home() {
   };
   const { setOpponentType } = useContext(Connect4GameContext);
   return (
-    <div className="w-full h-full flex justify-center items-center">
+    <div className="w-full h-full flex justify-center items-center bg-dark-purple">
       <div className={styles.selector_container}>
         <Button
           action={() => goToGame("user")}
