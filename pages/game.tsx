@@ -54,6 +54,7 @@ export default function Game() {
   const [userPlayer, setUserPlayer] = useState(playerOne);
   const [gameActive, setGameActive] = useState(true);
   const [numberOfSecondsRemaining, setNumberOfSecondsRemaining] = useState(15);
+  const [mostRecentWinner, setMostRecentWinner] = useState();
 
   /*useEffect(() => {
     socketInitializer();
@@ -93,7 +94,7 @@ export default function Game() {
       }, 500);
       setBlockPlayerMove(false);
     }
-  }, [board]);
+  }, [currentPlayer]);
 
   // Use effect to automatically change a player after 15 seconds if the game is still active
   useEffect(() => {
@@ -152,6 +153,7 @@ export default function Game() {
       //setBoard(clearBoard(board));
       setCurrentPlayer(copyOfPlayerOne);
       setGameActive(false);
+      setMostRecentWinner(currentPlayer);
       return;
     }
 
@@ -192,7 +194,7 @@ export default function Game() {
   };
 
   return (
-    <div className="flex justify-center items-center w-screen h-screen">
+    <div className="flex justify-center items-center w-screen h-screen max-h-screen overflow-auto">
       <h1 className="text-9xl px-12 text-white hidden lg:block">
         {playerOne.score}
       </h1>
@@ -248,7 +250,9 @@ export default function Game() {
           {gameActive && (
             <div className="absolute left-1/2 -translate-x-1/2 top-[92.5%]">
               <div className="absolute top-0 left-0 py-10 px-6 text-black w-full h-full text-center space-y-2">
-                <div className="text-base">{currentPlayer.name}'s turn</div>
+                <div className="text-sm lg:text-base">
+                  {currentPlayer.name}'s turn
+                </div>
                 <div className="text-4xl">{numberOfSecondsRemaining}s</div>
               </div>
               {currentPlayer.name === "Player One" ? (
@@ -266,7 +270,7 @@ export default function Game() {
                 className="w-full h-full"
               />
               <div className="absolute top-0 left-0 h-full w-full flex flex-col justify-evenly items-center py-4">
-                <div className="text-base">{currentPlayer.name}</div>
+                <div className="text-base">{mostRecentWinner.name}</div>
                 <div className="text-4xl">WINS</div>
                 <div
                   className="text-white text-base rounded-xl bg-dark-purple px-4 py-1 cursor-pointer"
@@ -283,7 +287,7 @@ export default function Game() {
           <h1 className="text-6xl text-white">{playerTwo.score}</h1>
         </div>
 
-        <div className="absolute w-full h-1/2 left-0 bg-dark-purple rounded-3xl top-[62%] z-10"></div>
+        <div className="absolute w-full h-[38%] left-0 bg-dark-purple top-[62%] z-10 rounded-t-3xl"></div>
       </div>
       <h1 className="text-9xl px-12 text-white hidden lg:block">
         {playerTwo.score}
