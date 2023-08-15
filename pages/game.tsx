@@ -29,6 +29,12 @@ import {
 
 //let socket;
 
+export type Player = {
+  name: string;
+  score: number;
+  number: number;
+};
+
 export default function Game() {
   const windowWidth = useWindowSize().width;
 
@@ -40,12 +46,12 @@ export default function Game() {
   const [input, setInput] = useState("");
   const [board, setBoard] = useState(initialBoard);
   const [blockPlayerMove, setBlockPlayerMove] = useState(false);
-  const [playerOne, setPlayerOne] = useState({
+  const [playerOne, setPlayerOne] = useState<Player>({
     name: "Player One",
     score: 0,
     number: 1,
   });
-  const [playerTwo, setPlayerTwo] = useState({
+  const [playerTwo, setPlayerTwo] = useState<Player>({
     name: "Player Two",
     score: 0,
     number: 2,
@@ -54,7 +60,9 @@ export default function Game() {
   const [userPlayer, setUserPlayer] = useState(playerOne);
   const [gameActive, setGameActive] = useState(true);
   const [numberOfSecondsRemaining, setNumberOfSecondsRemaining] = useState(15);
-  const [mostRecentWinner, setMostRecentWinner] = useState();
+  const [mostRecentWinner, setMostRecentWinner] = useState<Player | undefined>(
+    undefined
+  );
 
   /*useEffect(() => {
     socketInitializer();
@@ -109,7 +117,15 @@ export default function Game() {
       console.log("clearing");
       clearTimeout(maximumTime);
     };
-  }, [currentPlayer, gameActive]);
+  }, [
+    currentPlayer,
+    gameActive,
+    setCurrentPlayer,
+    changePlayer,
+    setNumberOfSecondsRemaining,
+    playerOne,
+    playerTwo,
+  ]);
 
   // Use effect to count down the number of seconds remaining
   useEffect(() => {
@@ -121,7 +137,7 @@ export default function Game() {
     return () => {
       clearTimeout(countDown);
     };
-  }, [numberOfSecondsRemaining]);
+  }, [numberOfSecondsRemaining, gameActive, setNumberOfSecondsRemaining]);
 
   const updateBoard = (columnHit: number) => {
     const updatedBoard = insertCounterIntoColumn(
@@ -251,7 +267,7 @@ export default function Game() {
             <div className="absolute left-1/2 -translate-x-1/2 top-[92.5%]">
               <div className="absolute top-0 left-0 py-10 px-6 text-black w-full h-full text-center space-y-2">
                 <div className="text-sm lg:text-base">
-                  {currentPlayer.name}'s turn
+                  {currentPlayer.name}&apos;s turn
                 </div>
                 <div className="text-4xl">{numberOfSecondsRemaining}s</div>
               </div>
