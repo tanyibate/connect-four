@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Connect4GameContext } from "../context/gameContext";
-//import io from "socket.io-client";
-
 import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
-//import Player from "../types/Player";
 import {
   insertCounterIntoColumn,
   changePlayer,
@@ -17,17 +14,13 @@ import {
   hitZoneRangesLarge,
   hitZoneRangesSmall,
   ROWS,
-  smallCounterRed,
-  smallCounterYellow,
-  largeCounterRed,
-  largeCounterYellow,
   blackBoardSmall,
   blackBoardLarge,
   whiteBoardLarge,
   whiteBoardSmall,
 } from "../utils/constants";
-
-//let socket;
+import ScoreBoard from "../components/scoreBoard/ScoreBoard";
+import Board from "../components/board/Board";
 
 export type Player = {
   name: string;
@@ -47,12 +40,12 @@ export default function Game() {
   const [board, setBoard] = useState(initialBoard);
   const [blockPlayerMove, setBlockPlayerMove] = useState(false);
   const [playerOne, setPlayerOne] = useState<Player>({
-    name: "Player One",
+    name: "PLAYER 1",
     score: 0,
     number: 1,
   });
   const [playerTwo, setPlayerTwo] = useState<Player>({
-    name: "Player Two",
+    name: botOpponent ? "CPU" : "PLAYER 2",
     score: 0,
     number: 2,
   });
@@ -63,28 +56,6 @@ export default function Game() {
   const [mostRecentWinner, setMostRecentWinner] = useState<Player | undefined>(
     undefined
   );
-
-  /*useEffect(() => {
-    socketInitializer();
-  }, []);*/
-
-  /*const onChangeHandler = (e) => {
-    setInput(e.target.value);
-    socket.emit("input-change", e.target.value);
-  };*/
-
-  /*const socketInitializer = async () => {
-    await fetch("/api/multiplayer");
-    socket = io();
-
-    socket.on("connect", () => {
-      console.log("connected");
-    });
-
-    socket.on("update-input", (msg) => {
-      setInput(msg);
-    });
-  };*/
 
   useEffect(() => {
     const getAIResponse = async (board: number[][], player: number) => {
@@ -178,8 +149,6 @@ export default function Game() {
   };
 
   const clickHandler = (e: any) => {
-    //socket.emit("hello-world", { input: "hello" });
-
     if (
       blockPlayerMove ||
       (currentPlayer === playerTwo && botOpponent) ||
@@ -188,7 +157,7 @@ export default function Game() {
     )
       return;
     const hitPoint = e.pageX - e.currentTarget.offsetLeft;
-    const isLarge = windowWidth >= 1024;
+    const isLarge = windowWidth >= 768;
 
     const hitZoneRanges = isLarge ? hitZoneRangesLarge : hitZoneRangesSmall;
 
@@ -211,55 +180,33 @@ export default function Game() {
 
   return (
     <div className="flex justify-center items-center w-screen h-screen max-h-screen overflow-auto">
-      <h1 className="text-9xl px-12 text-white hidden lg:block">
-        {playerOne.score}
-      </h1>
+      <div className="hidden xl:block">
+        <ScoreBoard large player={playerOne} />
+      </div>
       <div
-        className="h-full flex items-center justify-center gap-y-4 flex-col cursor-pointer z-10"
+        className="h-full flex items-center justify-center gap-y-4 flex-col cursor-pointer z-10 min-w-[335px] md:min-w-[632px] max-w-[335px] md:max-w-[632px]"
         onClick={clickHandler}
       >
-        <div className="relative min-w-[335px] lg:min-w-[632px] max-w-[335px] lg:max-w-[632px] z-20">
+        <div className="relative w-full z-20">
+          <div className="w-full z-50 absolute -top-4 -translate-y-full">
+            <div className="w-full flex justify-between"></div>
+            <div className="flex justify-between min-w-full px-7 xl:hidden">
+              <ScoreBoard player={playerOne} />
+              <ScoreBoard player={playerTwo} />
+            </div>
+          </div>
           <img
             src={blackBoardSmall}
             srcSet={`${blackBoardSmall} 335w, ${blackBoardLarge} 632w`}
-            sizes="(max-width: 1023px) 335px, 632px"
+            sizes="(max-width: 767px) 335px, 632px"
             alt=""
             className="z-[-5] absolute top-0 left-0"
           />
-          <div className="absolute w-[314px] lg:w-[592px] min-w-[314px] lg:min-w-[592px] h-[268px] lg:h-[504px] top-[10px] left-[10px] lg:top-[20px] lg:left-[20px]  grid grid-cols-7 grid-rows-6 gap-3 lg:gap-6 z-[-1]">
-            {board.map((column, xIndex) => {
-              return column.map((token, yIndex) => {
-                return (
-                  <div key={`${xIndex + yIndex}`} className="relative">
-                    {token === 1 || token === 3 ? (
-                      <img
-                        src={smallCounterRed}
-                        srcSet={`${smallCounterRed} 34w, ${largeCounterRed} 64w`}
-                        sizes="(max-width: 1023px) 34px, 64px"
-                        alt=""
-                      />
-                    ) : token === 2 || token === 4 ? (
-                      <img
-                        src={smallCounterYellow}
-                        srcSet={`${smallCounterYellow} 34w, ${largeCounterYellow} 64w`}
-                        sizes="(max-width: 1023px) 34px, 64px"
-                        alt=""
-                      />
-                    ) : (
-                      ""
-                    )}
-                    {(token === 3 || token === 4) && (
-                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 lg:border-8 border-white border-solid rounded-full h-1/2 w-1/2"></div>
-                    )}
-                  </div>
-                );
-              });
-            })}
-          </div>
+          <Board board={board} />
           <img
             src={whiteBoardSmall}
             srcSet={`${whiteBoardSmall} 335w, ${whiteBoardLarge} 632w`}
-            sizes="(max-width: 1024px) 632px"
+            sizes="(max-width: 767px) 632px"
             alt=""
             className="z-20"
           />
@@ -267,11 +214,11 @@ export default function Game() {
             <div className="absolute left-1/2 -translate-x-1/2 top-[92.5%]">
               <div className="absolute top-0 left-0 py-10 px-6 text-black w-full h-full text-center space-y-2">
                 <div className="text-sm lg:text-base">
-                  {currentPlayer.name}&apos;s turn
+                  {currentPlayer.name}&apos;S TURN
                 </div>
                 <div className="text-4xl">{numberOfSecondsRemaining}s</div>
               </div>
-              {currentPlayer.name === "Player One" ? (
+              {currentPlayer.number === 1 ? (
                 <img src="/assets/images/turn-background-red.svg" alt="" />
               ) : (
                 <img src="/assets/images/turn-background-yellow.svg" alt="" />
@@ -298,23 +245,10 @@ export default function Game() {
             </div>
           )}
         </div>
-        <div className="flex justify-between lg:hidden w-full px-6">
-          <h1 className="text-6xl text-white">{playerOne.score}</h1>
-          <h1 className="text-6xl text-white">{playerTwo.score}</h1>
-        </div>
-
-        <div className="absolute w-full h-[38%] left-0 bg-dark-purple top-[62%] z-10 rounded-t-3xl"></div>
       </div>
-      <h1 className="text-9xl px-12 text-white hidden lg:block">
-        {playerTwo.score}
-      </h1>
-
-      {/*<input
-        placeholder="Type something"
-        value={input}
-        onChange={onChangeHandler}
-        className="border-2 border-black fixed top-0 left-0"
-        />*/}
+      <div className="hidden xl:block">
+        <ScoreBoard large player={playerTwo} />
+      </div>{" "}
     </div>
   );
 }
