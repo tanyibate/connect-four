@@ -26,12 +26,12 @@ export default function ScoreBoard({
     iconClassNames =
       "absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2";
     scoreClassNames =
-      "flex flex-col justify-center absolute w-full h-full text-center left-0 top-0 md:flex md:items-center md:pr-12 md:gap-x-8 md:flex-row-reverse";
+      "flex flex-col justify-center absolute w-full h-full text-center left-0 top-0 md:flex md:items-center md:pr-12 md:gap-x-8 md:flex-row";
   } else if (player.number === 2 && !large) {
     iconClassNames =
       "absolute top-1/2 left-full -translate-x-1/2 -translate-y-1/2";
     scoreClassNames =
-      "flex flex-col justify-center absolute w-full h-full text-center left-0 top-0 md:items-center md:pr-12 md:gap-x-8 md:flex-row-reverse";
+      "flex flex-col justify-center absolute w-full h-full text-center left-0 top-0 md:items-center md:pl-12 md:gap-x-8 md:flex-row-reverse";
   }
 
   return (

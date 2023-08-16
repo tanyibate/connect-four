@@ -1,7 +1,23 @@
 import { createContext, useState, useEffect } from "react";
 import { setLocalStorage, getLocalStorage } from "../utils/localStorage";
 
-export const Connect4GameContext = createContext(null);
+export type Connect4GameContextType = {
+  userOpponent: boolean;
+  botOpponent: boolean;
+  remoteOpponent: boolean;
+  setOpponentType: (type: string) => void;
+};
+
+const initialConnect4GameContext: Connect4GameContextType = {
+  userOpponent: false,
+  botOpponent: false,
+  remoteOpponent: false,
+  setOpponentType: () => {},
+};
+
+export const Connect4GameContext = createContext<Connect4GameContextType>(
+  initialConnect4GameContext
+);
 
 export default function GameContext({ children }) {
   const [userOpponent, setUserOpponent] = useState(() =>

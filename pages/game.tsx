@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Connect4GameContext } from "../context/gameContext";
 import useWindowSize from "../hooks/useWindowSize";
 import axios from "axios";
@@ -21,6 +21,7 @@ import {
 } from "../utils/constants";
 import ScoreBoard from "../components/scoreBoard/ScoreBoard";
 import Board from "../components/board/Board";
+import Menu from "../components/menu/Menu";
 
 export type Player = {
   name: string;
@@ -34,8 +35,7 @@ export default function Game() {
   const initialBoard: number[][] = Array.from({ length: ROWS }, () =>
     Array.from({ length: COLUMNS }, () => EMPTY_CELL)
   );
-  const { opponentType, remoteOpponent, botOpponent, userOpponent } =
-    useContext(Connect4GameContext);
+  const { remoteOpponent, botOpponent } = useContext(Connect4GameContext);
   const [input, setInput] = useState("");
   const [board, setBoard] = useState(initialBoard);
   const [blockPlayerMove, setBlockPlayerMove] = useState(false);
@@ -56,6 +56,7 @@ export default function Game() {
   const [mostRecentWinner, setMostRecentWinner] = useState<Player | undefined>(
     undefined
   );
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const getAIResponse = async (board: number[][], player: number) => {
@@ -77,15 +78,19 @@ export default function Game() {
 
   // Use effect to automatically change a player after 15 seconds if the game is still active
   useEffect(() => {
-    if (gameActive) setNumberOfSecondsRemaining(15);
+    if (menuOpen) return;
+    let timeout = numberOfSecondsRemaining;
+    if (gameActive) {
+      setNumberOfSecondsRemaining(15);
+      timeout = 15;
+    }
     const maximumTime = setInterval(() => {
       if (gameActive) {
         setCurrentPlayer(changePlayer(currentPlayer, playerOne, playerTwo));
       }
-    }, 15000);
+    }, timeout * 1000);
 
     return () => {
-      console.log("clearing");
       clearTimeout(maximumTime);
     };
   }, [
@@ -96,10 +101,12 @@ export default function Game() {
     setNumberOfSecondsRemaining,
     playerOne,
     playerTwo,
+    menuOpen,
   ]);
 
   // Use effect to count down the number of seconds remaining
   useEffect(() => {
+    if (menuOpen) return;
     const countDown = setInterval(() => {
       if (gameActive && numberOfSecondsRemaining > 0) {
         setNumberOfSecondsRemaining((prev) => prev - 1);
@@ -108,7 +115,7 @@ export default function Game() {
     return () => {
       clearTimeout(countDown);
     };
-  }, [numberOfSecondsRemaining, gameActive, setNumberOfSecondsRemaining]);
+  }, [numberOfSecondsRemaining, menuOpen]);
 
   const updateBoard = (columnHit: number) => {
     const updatedBoard = insertCounterIntoColumn(
@@ -137,7 +144,6 @@ export default function Game() {
       setPlayerOne(copyOfPlayerOne);
       setPlayerTwo(copyOfPlayerTwo);
       setBoard(updatedBoard);
-      //setBoard(clearBoard(board));
       setCurrentPlayer(copyOfPlayerOne);
       setGameActive(false);
       setMostRecentWinner(currentPlayer);
@@ -172,10 +178,17 @@ export default function Game() {
     }
   };
 
-  const resetGame = () => {
+  const resetGame = (e) => {
     setBoard(clearBoard(board));
     setGameActive(true);
     setBlockPlayerMove(false);
+    setCurrentPlayer(playerOne);
+    e.stopPropagation();
+  };
+
+  const openMenu = (e) => {
+    setMenuOpen(true);
+    e.stopPropagation();
   };
 
   return (
@@ -188,8 +201,21 @@ export default function Game() {
         onClick={clickHandler}
       >
         <div className="relative w-full z-20">
-          <div className="w-full z-50 absolute -top-4 -translate-y-full">
-            <div className="w-full flex justify-between"></div>
+          <div className="w-full z-50 absolute -top-4 -translate-y-full space-y-4">
+            <div className="w-full flex justify-between">
+              <div
+                className="text-xl bg-dark-purple rounded-2xl text-white py-1 px-4"
+                onClick={openMenu}
+              >
+                MENU
+              </div>
+              <div
+                className="text-xl bg-dark-purple rounded-2xl text-white py-1 px-4 z-[1000]"
+                onClick={resetGame}
+              >
+                RESTART
+              </div>
+            </div>
             <div className="flex justify-between min-w-full px-7 xl:hidden">
               <ScoreBoard player={playerOne} />
               <ScoreBoard player={playerTwo} />
@@ -248,7 +274,18 @@ export default function Game() {
       </div>
       <div className="hidden xl:block">
         <ScoreBoard large player={playerTwo} />
-      </div>{" "}
+      </div>
+      {menuOpen && (
+        <Menu
+          continueGame={() => {
+            setMenuOpen(false);
+          }}
+          restartGame={(e) => {
+            resetGame(e);
+            setMenuOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
