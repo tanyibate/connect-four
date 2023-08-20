@@ -6,12 +6,16 @@ export type Connect4GameContextType = {
   botOpponent: boolean;
   remoteOpponent: boolean;
   setOpponentType: (type: string) => void;
+  userName?: string;
+  setUserName?: (username: string) => void;
 };
 
 const initialConnect4GameContext: Connect4GameContextType = {
   userOpponent: false,
   botOpponent: false,
   remoteOpponent: false,
+  userName: "",
+  setUserName: () => {},
   setOpponentType: () => {},
 };
 
@@ -30,10 +34,15 @@ export default function GameContext({ children }) {
     getLocalStorage("remoteOpponent", false)
   );
 
+  const [userName, setUserName] = useState(() =>
+    getLocalStorage("username", false)
+  );
+
   useEffect(() => {
     setLocalStorage("userOpponent", userOpponent);
     setLocalStorage("botOpponent", botOpponent);
     setLocalStorage("remoteOpponent", remoteOpponent);
+    setLocalStorage("username", userName);
   }, [userOpponent, botOpponent, remoteOpponent]);
 
   const setOpponentType = (type) => {
@@ -66,6 +75,8 @@ export default function GameContext({ children }) {
         botOpponent,
         remoteOpponent,
         setOpponentType,
+        userName,
+        setUserName,
       }}
     >
       {children}

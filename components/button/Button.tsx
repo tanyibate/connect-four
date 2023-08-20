@@ -19,6 +19,9 @@ export default function Button({
       case "red":
         returnColor = "bg-red";
         break;
+      case "green":
+        returnColor = "bg-green";
+        break;
       case "yellow":
         returnColor = "bg-yellow";
         break;
