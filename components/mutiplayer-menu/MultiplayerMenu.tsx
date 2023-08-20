@@ -91,8 +91,9 @@ export default function Menu({ cancel }) {
       cancel={cancel}
       confirm={() => setCurrentSlide(currentSlide + 1)}
       setUserName={setUserName}
+      key={0 + "slide"}
     />,
-    <RoomOptionSection />,
+    <RoomOptionSection key={1 + "slide"} />,
   ];
 
   return (
