@@ -30,12 +30,12 @@ export default function Home() {
         >
           Play vs CPU
         </Button>
-        {/*<Button
+        <Button
           action={() => setMultiplayerMenuActive(true)}
           iconUrl={"/assets/images/player-vs-player.svg"}
-  >
+        >
           Play Online
-        </Button>*/}
+        </Button>
       </div>
       {MultiplayerMenuActive && (
         <MultiplayerMenu cancel={() => setMultiplayerMenuActive(false)} />
